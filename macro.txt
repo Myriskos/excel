@@ -1,0 +1,31 @@
+Sub DoJob()
+Dim ref As Range, DestRange As Range
+Dim i as Long, StartFrom  As Long, CountCols  As Long
+
+Set ref = Selection
+Set DestRange = ref.Cells(0, 2)
+
+StartFrom = 1
+
+For i = 1 To ref.Rows.Count
+    If Val(ref.Cells(i, 1)) = StartFrom Then
+        If CountCols = 4 Then
+            DestRange.Cells(, 2).Value = DestRange.Value
+            DestRange.Value = ""
+        End If
+        Set DestRange = Cells(DestRange.Row + 1, ref.Column + 1)
+        DestRange.Value = ref.Cells(i, 1)
+        StartFrom = StartFrom + 1
+        CountCols = 1
+    Else
+        Set DestRange = DestRange.Cells(, 2)
+        DestRange.Value = ref.Cells(i, 1)
+        CountCols = CountCols + 1
+    End If
+Next i
+If CountCols = 4 Then
+    DestRange.Cells(, 2).Value = DestRange.Value
+    DestRange.Value = ""
+End If
+
+End Sub

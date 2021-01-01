@@ -1,0 +1,107 @@
+Private Sub CommandButton1_Click()
+    Dim li As Integer
+    Dim i As Integer
+    
+    CurDate = Date
+    li = 1
+    For i = 3 To 9999
+     li = li + 1
+     If Cells(i, 1) = "" Then
+       Exit For
+     End If
+    Next
+   ' MsgBox (li)
+    Range(Cells(4, 1), Cells(li, 255)).Select
+    Selection.Interior.ColorIndex = xlNone
+    Range("A1").Select
+    ReDim arr1(li)
+    
+ For i = 4 To li:   
+       arr1(i) = Cells(i, 7)
+       For m = 0 To li
+        If arr1(m) = Cells(i, 7) Then
+          MsgBox arr1(m)
+        End If
+       Next
+       
+      ' MsgBox arr1(i)
+       If Cells(i, 6) = "" And Cells(i, 1) <> "" Then
+            Range(Cells(i, 1), Cells(i, 10)).Select
+            With Selection.Interior
+                .ColorIndex = 40
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+            End With
+           
+       End If
+        
+  If Cells(i, 3) <= CurDate And Cells(i, 1) <> "" And Cells(i, 6) = "" Then
+    Range(Cells(i, 1), Cells(i, 10)).Select
+    With Selection.Interior
+    .ColorIndex = 3
+    .Pattern = xlSolid
+    .PatternColorIndex = xlAutomatic
+    End With
+  End If
+  
+ Next
+   
+'Range("H1").Value = 100
+'Range("H1").Formula = "=SUM(H4:H30 )"
+Range("H1").Formula = "=SUM( H4:H" & li & " )"
+
+Range("A1").Select
+End Sub
+
+Private Sub Worksheet_Activate()
+    CurDate = Date
+    li = 1
+    For i = 4 To 9999
+     li = li + 1
+     If Cells(i, 1) = "" Then
+       Exit For
+     End If
+    Next
+    
+    Range(Cells(4, 1), Cells(li, 255)).Select
+    Selection.Interior.ColorIndex = xlNone
+    Range("A1").Select
+    
+    
+
+
+ For i = 4 To li:   
+       If Cells(i, 6) = "" And Cells(i, 1) <> "" Then
+            Range(Cells(i, 1), Cells(i, 10)).Select
+            With Selection.Interior
+                .ColorIndex = 40
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+            End With
+           
+       End If
+        
+  If Cells(i, 3) <= CurDate And Cells(i, 1) <> "" Then
+    Range(Cells(i, 1), Cells(i, 10)).Select
+    With Selection.Interior
+    .ColorIndex = 3
+    .Pattern = xlSolid
+    .PatternColorIndex = xlAutomatic
+    End With
+  End If
+  
+        
+      '  If Cells(i, 1) <> "" And Cells(i, 6) = "" Then
+      '    Range(Cells(i, 1), Cells(i, 10)).Select
+      '    With Selection.Interior
+      '         .ColorIndex = 3
+      '         .Pattern = xlSolid
+      '         .PatternColorIndex = xlAutomatic
+      '    End With
+      '  End If
+        
+        
+   Next
+
+Range("A1").Select
+End Sub

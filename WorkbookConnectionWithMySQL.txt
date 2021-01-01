@@ -1,0 +1,103 @@
+Sub Refresh()
+'
+    ' Declare Variables
+    Dim fromdate As String
+    Dim todate As String
+    Dim sqlserver As String
+    Dim sqluser As String
+    Dim sqlpass As String
+    Dim catalog As String
+    Dim wc As WorkbookConnection
+
+
+    ' Get Report Dates from the first sheet, "Params"
+    fromdate = Format(Sheets("Params").Range("C8").Value, "yyyy-mm-dd hh:mm:ss")
+    todate = Format(Sheets("Params").Range("C9").Value, "yyyy-mm-dd hh:mm:ss")
+    sqlserver = Sheets("Params").Range("C3").Value
+    sqluser = Sheets("Params").Range("C4").Value
+    sqlpass = Sheets("Params").Range("C5").Value
+    catalog = Sheets("Params").Range("C6").Value
+
+
+    ' Delete Data from Customers Sheet
+    Sheets("Customers").Select
+    Cells.Select
+    Selection.Delete Shift:=xlUp
+    Range("A1").Select
+
+
+    ' Add Data from Customer Connection
+    With ActiveSheet.ListObjects.Add(SourceType:=0, Source:= _
+        "ODBC;DRIVER=SQL Server;SERVER=" & sqlserver & ";UID=" & sqluser & ";PWD=" & sqlpass & ";APP=2007 Microsoft Office system;WSID=ANALYSE-THES-3;DATABASE=" & catalog & "" _
+        , Destination:=Range("$A$1")).QueryTable
+        .CommandText = Array( _
+"SELECT DISTINCT DOY.CODE, TRD.NAME, TRD.AFM, TRD.ZIPCODE, TRD.STREET, TRD.STRNUMBER, TRD.CITY, TRD.PHONE1, TRD.PHONE2, TRD.PHONE3," _
+, _
+" TRD.FAX, TRD.EMAIL, TRD.IDENTITYNUM, TRD.ID FROM EliteUser.TRD AS TRD LEFT JOIN EliteUser.TRDACCS AS TRDACCS ON TRD.ID = TRDACCS.TRDID" _
+, _
+" LEFT JOIN EliteUser.DOY AS DOY ON DOY.ID = TRD.DOYID WHERE TRD.ID IN (SELECT DISTINCT TRDACCS.TRDID FROM EliteUser.IEE AS IEE LEFT JOIN EliteUser.TRDACCS AS TRDACCS ON IEE.TRAID = TRDACCS.TRAID LEFT JOIN EliteUser.IET AS IET ON IET.ID = IEE.IETID" _
+, _
+" WHERE IEE.TRAID > 0 AND IEE.ENTRYDATE BETWEEN '" & fromdate & "' AND '" & todate & "' AND IET.KIND IN (1,2) ) ORDER BY TRD.ID ")
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .BackgroundQuery = True
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .PreserveColumnInfo = True
+        .ListObject.DisplayName = "Table_ExternalData_1"
+        .Refresh BackgroundQuery:=False
+    End With
+
+
+    ' Delete Data from Transactions Sheet
+    Sheets("Transactions").Select
+    Cells.Select
+    Selection.Delete Shift:=xlUp
+    Range("A1").Select
+
+
+    ' Add Data from Transactions Connection
+    With ActiveSheet.ListObjects.Add(SourceType:=0, Source:= _
+        "ODBC;DRIVER=SQL Server;SERVER=" & sqlserver & ";UID=" & sqluser & ";PWD=" & sqlpass & ";APP=2007 Microsoft Office system;WSID=ANALYSE-THES-3;DATABASE=" & catalog & "" _
+        , Destination:=Range("$A$1")).QueryTable
+        .CommandText = Array( _
+"SELECT IEE.ID, IEE.USERDOCSTART, IEE.USERDOCEND, CONVERT(VARCHAR, IEE.ENTRYDATE, 3) AS ENTRYDATE, IEE.KEPYOAMOUNT, ITR.NETAMOUNT, ITR.VATAMOUNT, IET.ABBREVIATION, IET.KIND, INC.ABBREVIATION, " _
+, _
+" TRDACCS.NAME, TRDACCS.TRDID FROM EliteUser.IEE AS IEE LEFT JOIN EliteUser.ITR AS ITR ON ITR.IEEID = IEE.ID LEFT JOIN EliteUser.IET AS IET ON IET.ID = IEE.IETID LEFT JOIN EliteUser.INC AS INC ON INC.ID = ITR.CATID " _
+, _
+" LEFT JOIN EliteUser.TRDACCS AS TRDACCS ON TRDACCS.TRAID = IEE.TRAID " _
+, _
+" LEFT JOIN EliteUser.TRD AS TRD ON TRD.ID = TRDACCS.TRDID WHERE IET.KIND = 1 AND TRDACCS.ACCOUNTORIGIN = 1 AND IEE.ENTRYDATE BETWEEN '" & fromdate & "' AND '" & todate & "' UNION ALL SELECT IEE.ID, IEE.USERDOCSTART, " _
+, _
+" IEE.USERDOCEND, CONVERT(VARCHAR, IEE.ENTRYDATE, 3) AS ENTRYDATE, IEE.KEPYOAMOUNT, ITR.NETAMOUNT, ITR.VATAMOUNT, IET.ABBREVIATION, IET.KIND, EXP.ABBREVIATION, TRDACCS.NAME, TRDACCS.TRDID FROM EliteUser.IEE " _
+, _
+" AS IEE LEFT JOIN EliteUser.ITR AS ITR ON ITR.IEEID = IEE.ID " _
+, _
+" LEFT JOIN EliteUser.IET AS IET ON IET.ID = IEE.IETID LEFT JOIN EliteUser.EXP AS EXP ON EXP.ID = ITR.CATID LEFT JOIN EliteUser.TRDACCS AS TRDACCS ON TRDACCS.TRAID = IEE.TRAID LEFT JOIN EliteUser.TRD AS TRD ON TRD.ID = TRDACCS.TRDID " _
+, _
+" WHERE IET.KIND = 2 AND TRDACCS.ACCOUNTORIGIN = IEE.ACCOUNTORIGIN AND IEE.ENTRYDATE BETWEEN '" & fromdate & "' AND '" & todate & "' ORDER BY IEE.ID ")
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .BackgroundQuery = True
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .PreserveColumnInfo = True
+        .ListObject.DisplayName = "Table_ExternalData_13"
+        .Refresh BackgroundQuery:=False
+    End With
+
+
+
+
+
+End Sub
